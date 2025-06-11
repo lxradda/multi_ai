@@ -1,0 +1,54 @@
+import os
+import gradio as gr
+from ai_agent import AIAgent
+from p2p_network import P2PNode
+from orbitdb_client import OrbitDBClient
+
+NODE_NAME = os.getenv("NODE_NAME", "node1")
+P2P_PORT = int(os.getenv("P2P_PORT", "9001"))
+ORBITDB_PORT = int(os.getenv("ORBITDB_PORT", "7001"))
+
+# Bileşenleri başlat
+ai_agent = AIAgent(NODE_NAME)
+p2p_node = P2PNode(NODE_NAME, P2P_PORT)
+orbitdb = OrbitDBClient(NODE_NAME, ORBITDB_PORT)
+
+def train_model(data):
+    # Modeli eğit
+    ai_agent.train(data)
+    return "Model başarıyla eğitildi!"
+
+def share_model():
+    # Modeli OrbitDB'ye yaz ve P2P ile paylaş
+    params = ai_agent.get_model_params()
+    orbitdb.save_model(params)
+    p2p_node.broadcast_model(params)
+    return "Model parametreleri paylaşıldı."
+
+def get_model_info():
+    return ai_agent.get_model_params()
+
+def fetch_from_orbitdb():
+    return orbitdb.fetch_latest_model()
+
+with gr.Blocks() as demo:
+    gr.Markdown(f"# {NODE_NAME} P2P AI Node")
+    data_input = gr.Textbox(label="Eğitim Verisi")
+    train_btn = gr.Button("Modeli Eğit")
+    train_output = gr.Textbox(label="Eğitim Sonucu")
+    train_btn.click(fn=train_model, inputs=data_input, outputs=train_output)
+
+    share_btn = gr.Button("Modeli Paylaş (OrbitDB + P2P)")
+    share_output = gr.Textbox(label="Paylaşım Sonucu")
+    share_btn.click(fn=share_model, inputs=None, outputs=share_output)
+
+    info_btn = gr.Button("Model Parametrelerini Göster")
+    info_output = gr.Textbox(label="Model Bilgisi")
+    info_btn.click(fn=get_model_info, inputs=None, outputs=info_output)
+
+    fetch_btn = gr.Button("OrbitDB'den En Son Modeli Al")
+    fetch_output = gr.Textbox(label="Model (OrbitDB'den)")
+    fetch_btn.click(fn=fetch_from_orbitdb, inputs=None, outputs=fetch_output)
+
+if __name__ == "__main__":
+    demo.launch(server_name="0.0.0.0", server_port=8000)

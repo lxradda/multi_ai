@@ -1,0 +1,33 @@
+version: '3'
+services:
+  node1:
+    build: ./node
+    ports:
+      - "8001:8000"
+    environment:
+      - NODE_NAME=node1
+      - P2P_PORT=9001
+      - ORBITDB_PORT=7001
+  node2:
+    build: ./node
+    ports:
+      - "8002:8000"
+    environment:
+      - NODE_NAME=node2
+      - P2P_PORT=9002
+      - ORBITDB_PORT=7002
+  node3:
+    build: ./node
+    ports:
+      - "8003:8000"
+    environment:
+      - NODE_NAME=node3
+      - P2P_PORT=9003
+      - ORBITDB_PORT=7003
+  admin:
+    build: ./admin
+    ports:
+      - "8010:8000"
+    environment:
+      - ADMIN_PORT=8000
+      

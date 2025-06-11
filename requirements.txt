@@ -1,0 +1,9 @@
+numpy
+pandas
+requests
+websockets
+scikit-learn
+# Derin öğrenme eklenirse:
+# torch
+# tensorflow
+# transformers
